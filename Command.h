@@ -14,6 +14,7 @@
 #include "ConstVars.h"
 #include "VarToSim.h"
 #include "Variable.h"
+#include "globFunctions.h"
 
 using namespace std;
 Vars *Vars::s;
@@ -57,13 +58,15 @@ class DefineVarCommand : public Command {
  public:
   int execute(vector<string> commands, int index) {
     if (commands[index+2] == "->") {
-      Vars::instance()->add(commands[index+3],&Singleton::instance()->getInstance().at(commands[index+3]));
+      // real value : float value = Singleton::instance()->getInstance().at(commands[index+3]);
+      VarToSim::instance()->add(commands[index+1], commands[index+4], 0);
     } else if (commands[index+2] == "=") {
-
+      updateVar("ConstVars", commands[index + 1], solveExpression(commands[index+3]));
+      return 4;
     } else if (commands[index+2] == "<-") {
-      VarToSim::instance()->add(commands[index+3], Variable(commands[index+1], Singleton::instance()->getInstance().at(commands[index+3])));
+      Vars::instance()->add(commands[index+1],&Singleton::instance()->getInstance().at(commands[index+4]));
     }
-    return 0;
+    return 5;
   }
 };
 

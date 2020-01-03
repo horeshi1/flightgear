@@ -6,6 +6,7 @@
 #include <map>
 #include "Command.h"
 #include "Vars.h"
+#include "globFunctions.h"
 
 using namespace std;
 
@@ -29,6 +30,12 @@ vector<string> lexer(string fname) {
         if (command != "") {
           strings.resize(strings.size() + 1);
           strings[strings.size() - 1] = command;
+          if (command == "=") {
+            strings.resize(strings.size() + 1);
+            command = line.substr(line.find("=") + 2);
+            strings[strings.size() - 1] = command;
+            i = line.length();
+          }
         }
       }
     }
@@ -39,21 +46,22 @@ vector<string> lexer(string fname) {
 
 void parser(vector<string> strings, unordered_map<string, Command*> commands) {
   int index = 0;
-  while(index < 5) {   //// change to index < strings.size()
+  while (index < strings.size()) {
     if (commands.find(strings[index]) == commands.end()) {                                //if not a command
-      if (Vars::instance()->getInstance().find(strings[index]) == Vars::instance()->getInstance().end()) {  //not var
-        cout<<"Command named : '"<< strings[index] <<"' was not defined"<<endl;
-      }
-      else {                                                                              //is a varuable
-      /////////                       existingVar function
+      string vType = isVar(strings[index]);
+      if (vType == "no") {  //not var
+        cout << "Command named : '" << strings[index] << "' was not defined" << endl;
+        index++;
+      } else {                                                                              //is a varuable
+        updateVar(vType, strings[index], solveExpression(strings[index+2]));
+        index+=3;
       }
     } else {                                                                              //is a command
-     Command *c = commands.at(strings[index]);
-     index += c->execute(strings, index);
-     cout << index;
+      Command *c = commands.at(strings[index]);
+      index += c->execute(strings, index);
+    }
   }
 }
-
 unordered_map<string, Command*> createMap() {
   unordered_map<string, Command*> commands;
 
@@ -68,10 +76,10 @@ unordered_map<string, Command*> createMap() {
 
 
 int main(int argc, char * argv[]) {
-  unordered_map<string, Command*> commands = createMap();
+  unordered_map<string, Command *> commands = createMap();
   vector<string> strings = lexer(argv[1]);
-  for(int i = 0; i < strings.size(); i++) {
-    cout<<strings[i]<<endl;
-  }
+//  for (int i = 0; i < strings.size(); i++) {
+//      cout << strings[i] << endl;
+//    }
   parser(strings, commands);
 }

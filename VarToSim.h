@@ -12,7 +12,7 @@ using namespace std;
 
 class VarToSim {
  private:
-  unordered_map<string, Variable> myMap;
+  unordered_map<string, Variable*> myMap;
   static VarToSim *s;
 
   VarToSim() {
@@ -20,11 +20,16 @@ class VarToSim {
   }
 
  public:
-  unordered_map<string, Variable> getInstance() {
+  unordered_map<string, Variable*> getInstance() {
     return myMap;
   }
-  void add(string name, Variable v) {
+  void add(string name, string address, float value) {
+    Variable *v = new Variable(address, value);
     this->myMap[name] = v;
+  }
+  void updateVar(string name, float num) {
+    Variable *v = new Variable(this->myMap.at(name)->getName(), num);
+    this->myMap.at(name) = v;
   }
   static VarToSim *instance() {
     if(!s) {

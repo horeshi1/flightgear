@@ -22,12 +22,14 @@ class ConstVars {
   unordered_map<string, float> getInstance() {
     return myMap;
   }
-  void add(string name, float num) {
-    this->myMap[name] = num;
+  void updateVar(string name, float num) {
+    if (this->myMap.find(name) != this->myMap.end()) {
+      this->myMap.at(name) = num;
+    } else {
+      this->myMap[name] = num;
+    }
   }
-  void setVar(string name, float num) {
-    this->myMap[name] = num;
-  }
+
   static ConstVars *instance() {
     if(!s) {
       s = new ConstVars;
